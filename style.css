@@ -1,0 +1,235 @@
+:root {
+  --bg: #fafafa;
+  --fg: #09090b;
+  --muted: #52525b;
+  --frame: #ffffff;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.08);
+  --shadow-hover: 0 2px 4px rgb(0 0 0 / 0.08), 0 18px 40px rgb(0 0 0 / 0.16);
+  --ring: #18181b;
+  --overlay: rgb(250 250 250 / 0.97);
+  --btn-bg: rgb(0 0 0 / 0.06);
+  --btn-bg-hover: rgb(0 0 0 / 0.12);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0c0e;
+    --fg: #f4f4f5;
+    --muted: #a1a1aa;
+    --frame: #1c1c1f;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.4);
+    --shadow-hover: 0 2px 4px rgb(0 0 0 / 0.5), 0 18px 40px rgb(0 0 0 / 0.6);
+    --ring: #f4f4f5;
+    --overlay: rgb(8 8 10 / 0.97);
+    --btn-bg: rgb(255 255 255 / 0.08);
+    --btn-bg-hover: rgb(255 255 255 / 0.16);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body:has(.lightbox[open]) { overflow: hidden; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Archivo", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.site-header {
+  padding: clamp(40px, 8vw, 96px) 16px clamp(24px, 5vw, 56px);
+  text-align: center;
+}
+
+.site-header h1 {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Gallery grid ---------- */
+
+main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px 96px;
+}
+
+.gallery {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 3 320px;
+  column-gap: clamp(20px, 3vw, 40px);
+}
+
+.card {
+  break-inside: avoid;
+  margin-bottom: clamp(28px, 4vw, 48px);
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 400ms var(--ease), transform 400ms var(--ease);
+}
+
+.card.is-visible { opacity: 1; transform: none; }
+
+.card-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  perspective: 900px;
+}
+
+.card-btn:focus-visible { outline: none; }
+.card-btn:focus-visible .frame { outline: 2px solid var(--ring); outline-offset: 4px; }
+
+.frame {
+  display: block;
+  padding: clamp(8px, 1.2vw, 14px);
+  background: var(--frame);
+  box-shadow: var(--shadow);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 250ms var(--ease), box-shadow 250ms var(--ease);
+  will-change: transform;
+}
+
+.frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 120px;
+  background: rgb(128 128 128 / 0.1);
+}
+
+.card-btn:hover .frame { box-shadow: var(--shadow-hover); }
+
+.card-title {
+  display: block;
+  margin-top: 14px;
+  font-size: 0.95rem;
+  color: var(--muted);
+  transition: color 200ms var(--ease);
+}
+
+.card-btn:hover .card-title,
+.card-btn:focus-visible .card-title { color: var(--fg); }
+
+/* ---------- Lightbox ---------- */
+
+.lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--overlay);
+  color: var(--fg);
+  overflow: hidden;
+}
+
+.lightbox::backdrop { background: transparent; }
+
+.lightbox[open] { animation: fade-in 250ms var(--ease); }
+
+@keyframes fade-in { from { opacity: 0; } }
+
+.lb-stage {
+  position: absolute;
+  inset: 64px 72px 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  cursor: zoom-in;
+}
+
+.lb-stage.is-zoomed { cursor: grab; }
+.lb-stage.is-dragging { cursor: grabbing; }
+
+.lb-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  box-shadow: var(--shadow-hover);
+  user-select: none;
+  transform-origin: 0 0;
+  transition: transform 300ms var(--ease), opacity 200ms var(--ease);
+}
+
+.lb-stage.is-dragging .lb-img { transition: none; }
+
+.lb-title {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 20px;
+  margin: 0;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.lb-btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--btn-bg);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background-color 200ms var(--ease), opacity 200ms var(--ease);
+}
+
+.lb-btn:hover { background: var(--btn-bg-hover); }
+.lb-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+.lb-btn svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lb-close { top: 12px; right: 12px; }
+.lb-prev { left: 12px; top: 50%; translate: 0 -50%; }
+.lb-next { right: 12px; top: 50%; translate: 0 -50%; }
+
+/* Hide arrows while zoomed so they don't cover the painting */
+.lightbox.is-zoomed .lb-prev,
+.lightbox.is-zoomed .lb-next { opacity: 0; pointer-events: none; }
+
+@media (max-width: 640px) {
+  .lb-stage { inset: 64px 8px 72px; }
+  .lb-prev, .lb-next { top: auto; bottom: 8px; translate: none; }
+  .lb-title { left: 72px; right: 72px; bottom: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+  .card { opacity: 1; transform: none; }
+}

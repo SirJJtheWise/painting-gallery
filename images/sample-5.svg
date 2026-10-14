@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+<defs><filter id="b"><feGaussianBlur stdDeviation="25"/></filter></defs>
+<rect width="1000" height="700" fill="#3d0c11"/>
+<rect y="385" width="1000" height="315" fill="#f77f00"/>
+<g filter="url(#b)">
+<ellipse cx="756" cy="574" rx="267" ry="94" fill="#f77f00" opacity="0.83"/>
+<ellipse cx="149" cy="643" rx="206" ry="97" fill="#fcbf49" opacity="0.44"/>
+<ellipse cx="800" cy="128" rx="277" ry="54" fill="#3d0c11" opacity="0.41"/>
+<ellipse cx="802" cy="59" rx="268" ry="35" fill="#3d0c11" opacity="0.79"/>
+<ellipse cx="12" cy="696" rx="172" ry="118" fill="#fcbf49" opacity="0.68"/>
+<ellipse cx="527" cy="167" rx="104" ry="44" fill="#3d0c11" opacity="0.42"/>
+<ellipse cx="932" cy="440" rx="197" ry="48" fill="#d62828" opacity="0.60"/>
+<ellipse cx="271" cy="563" rx="299" ry="32" fill="#d62828" opacity="0.41"/>
+<ellipse cx="514" cy="172" rx="178" ry="93" fill="#d62828" opacity="0.69"/>
+<ellipse cx="546" cy="622" rx="293" ry="58" fill="#fcbf49" opacity="0.50"/>
+<ellipse cx="343" cy="583" rx="235" ry="90" fill="#d62828" opacity="0.58"/>
+<ellipse cx="982" cy="586" rx="83" ry="89" fill="#f77f00" opacity="0.80"/>
+<ellipse cx="163" cy="59" rx="265" ry="113" fill="#fcbf49" opacity="0.70"/>
+<ellipse cx="599" cy="485" rx="90" ry="46" fill="#f77f00" opacity="0.52"/>
+</g></svg>

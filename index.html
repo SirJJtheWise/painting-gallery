@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gallery</title>
+  <meta name="description" content="A gallery of my paintings.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Gallery</h1>
+  </header>
+
+  <main>
+    <ul class="gallery" id="gallery" aria-label="Paintings"></ul>
+  </main>
+
+  <dialog class="lightbox" id="lightbox" aria-label="Painting viewer">
+    <div class="lb-stage" id="lb-stage">
+      <img class="lb-img" id="lb-img" alt="" draggable="false">
+    </div>
+    <p class="lb-title" id="lb-title"></p>
+
+    <button class="lb-btn lb-close" id="lb-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button class="lb-btn lb-prev" id="lb-prev" aria-label="Previous painting">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lb-btn lb-next" id="lb-next" aria-label="Next painting">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </dialog>
+
+  <script src="paintings.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
