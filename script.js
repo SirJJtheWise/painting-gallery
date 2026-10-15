@@ -6,6 +6,8 @@
   const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const label = (i) => `${pad(i + 1)} — ${PAINTINGS[i].title}`;
+  const thumb = (p) => p.thumb || p.file;
+  const ratios = PAINTINGS.map((p) => (p.w && p.h ? p.w / p.h : 0.8));
 
   /* ---------- Giant wordmarks fill their width ---------- */
 
@@ -56,7 +58,7 @@
       dots.appendChild(dot);
       const img = new Image();
       img.onload = img.onerror = () => { loaded++; dot.classList.add("is-loaded"); };
-      img.src = p.file;
+      img.src = thumb(p);
     });
     (function tick() {
       const target = (loaded / N) * 100;
@@ -150,6 +152,25 @@
   clock();
   setInterval(clock, 1000);
 
+  /* ---------- Canvas tilt + light sheen ---------- */
+
+  // The canvas leans toward the pointer and a soft highlight follows it
+  function addTilt(el) {
+    if (!finePointer || reducedMotion) return;
+    el.addEventListener("pointermove", (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty("--ry", `${(x - 0.5) * 14}deg`);
+      el.style.setProperty("--rx", `${(0.5 - y) * 12}deg`);
+      el.style.setProperty("--gx", `${x * 100}%`);
+      el.style.setProperty("--gy", `${y * 100}%`);
+    });
+    el.addEventListener("pointerleave", () => {
+      el.style.setProperty("--rx", "0deg");
+      el.style.setProperty("--ry", "0deg");
+    });
+  }
+
   /* ---------- The pile ---------- */
 
   const pile = $("pile-cards");
@@ -161,9 +182,13 @@
 
   PAINTINGS.forEach((p, i) => {
     const li = document.createElement("li");
-    li.innerHTML = `<button class="pile-card" type="button"><img alt="" draggable="false"></button>`;
+    li.innerHTML = `<button class="pile-card art" type="button"><img alt="" draggable="false"><span class="glare"></span></button>`;
     const card = li.firstElementChild;
-    card.querySelector("img").src = p.file;
+    const img = card.querySelector("img");
+    img.src = thumb(p);
+    // Paintings without a listed size get measured once their image loads
+    if (!(p.w && p.h)) img.addEventListener("load", () => { ratios[i] = img.naturalWidth / img.naturalHeight; layout(); }, { once: true });
+    addTilt(card);
     card.setAttribute("aria-label", `Open ${p.title}`);
     card.addEventListener("pointerenter", () => (pileLabel.textContent = label(i)));
     card.addEventListener("focus", () => (pileLabel.textContent = label(i)));
@@ -183,20 +208,27 @@
   });
   pile.addEventListener("focusout", () => (pileLabel.textContent = label(front())));
 
-  // Cascade the cards from the back (top-left) to the front (bottom-right)
+  // Cascade the cards from the back (top-left) to the front (bottom-right).
+  // Every painting keeps its own proportions; all get roughly the same area.
   function layout() {
     const W = pile.clientWidth, H = pile.clientHeight;
-    let cw = W * parseFloat(getComputedStyle(pile).getPropertyValue("--cw"));
-    if (cw * 0.75 > H * 0.7) cw = (H * 0.7) / 0.75;
-    const ch = cw * 0.75;
-    const px = W * 0.05, py = H * 0.08;
+    const base = W * parseFloat(getComputedStyle(pile).getPropertyValue("--cw"));
+    let area = base * base * 0.8;
+    let sizes = ratios.map((r) => [Math.sqrt(area * r), Math.sqrt(area / r)]);
+    const fit = Math.min(1, (H * 0.74) / Math.max(...sizes.map((s) => s[1])), (W * 0.62) / Math.max(...sizes.map((s) => s[0])));
+    sizes = sizes.map(([w, h]) => [w * fit, h * fit]);
+    const maxW = Math.max(...sizes.map((s) => s[0])), maxH = Math.max(...sizes.map((s) => s[1]));
+    const px = W * 0.05, py = H * 0.06;
     const steps = Math.max(1, N - 1);
-    const dx = (W - 2 * px - cw) / steps, dy = (H - 2 * py - ch) / steps;
-    pile.style.setProperty("--cw-px", `${cw}px`);
+    const dx = (W - 2 * px - maxW) / steps, dy = (H - 2 * py - maxH) / steps;
     order.forEach((idx, k) => {
       const c = cards[idx];
-      c.style.setProperty("--x", `${px + k * dx}px`);
-      c.style.setProperty("--y", `${py + k * dy}px`);
+      const [w, h] = sizes[idx];
+      const cx = px + maxW / 2 + k * dx, cy = py + maxH / 2 + k * dy;
+      c.style.setProperty("--w", `${w}px`);
+      c.style.setProperty("--h", `${h}px`);
+      c.style.setProperty("--x", `${cx - w / 2}px`);
+      c.style.setProperty("--y", `${cy - h / 2}px`);
       c.style.setProperty("--k", k);
       c.style.setProperty("--d", ((k + 1) / N).toFixed(3));
       c.classList.toggle("is-front", k === N - 1);
@@ -294,17 +326,21 @@
       <button class="row" type="button">
         <span class="r-num">(${pad(i + 1)})</span>
         <span class="r-title"></span>
-        <span class="r-media"><img loading="lazy" decoding="async" alt=""></span>
+        <span class="r-media"><span class="art"><img loading="lazy" decoding="async" alt=""><span class="glare"></span></span></span>
         <svg class="r-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
       </button>`;
     li.querySelector(".r-title").textContent = p.title;
-    li.querySelector("img").src = p.file;
+    li.querySelector("img").src = thumb(p);
+    const art = li.querySelector(".art");
+    art.style.setProperty("--ar", ratios[i]);
+    if (!(p.w && p.h)) li.querySelector("img").addEventListener("load", (e) => art.style.setProperty("--ar", e.target.naturalWidth / e.target.naturalHeight), { once: true });
+    addTilt(art);
     const row = li.firstElementChild;
     row.setAttribute("aria-label", `Open ${p.title}`);
     row.addEventListener("click", () => open(i));
     row.addEventListener("pointerenter", () => {
       if (!finePointer || items.dataset.view !== "list") return;
-      preview.src = p.file;
+      preview.src = thumb(p);
       preview.classList.add("is-on");
     });
     items.appendChild(li);
